@@ -1,9 +1,27 @@
 ---
-// const response = await fetch('');
-// const allTheData = await response.json();
+const response = await fetch("https://www.csscolorsapi.com/api/colors");
+const allTheData = await response.json();
 ---
 
-
-
-
-
+<div class="overflow-x-auto">
+    <table class="table">
+        <!-- head -->
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Group</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- row 1 -->
+            {
+                allTheData.colors.map((color) => (
+                    <tr style=`background: #${color.hex}`>
+                        <th>{color.name}</th>
+                        <td>{color.group}</td>
+                    </tr>
+                ))
+            }
+        </tbody>
+    </table>
+</div>
