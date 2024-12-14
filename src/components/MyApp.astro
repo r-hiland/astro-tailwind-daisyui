@@ -1,34 +1,57 @@
----
-const factResponse = await fetch('https://dog-api.kinduff.com/api/facts');
-const factData = await factResponse.json();
-const dogFact = factData.facts[0];
-
-const imageResponse = await fetch('https://random.dog/woof.json');
-const imageData = await imageResponse.json();
-const dogMediaUrl = imageData.url;
-
-// the random dog api sometimes gives a video
-const isVideo = dogMediaUrl.endsWith('.mp4') || dogMediaUrl.endsWith('.webm');
-
-// Generate a random number between 100 and 9999
-const randomNumber = Math.floor(Math.random() * (9999 - 100 + 1)) + 100;
----
-
 <div class="min-h-screen flex items-center justify-center bg-base-200">
-  <div class="card card-compact bg-base-100 w-96 shadow-xl">
-    <figure>
-      {isVideo ? (
-        <video class="w-full h-64 object-cover" src={dogMediaUrl} autoplay loop></video>
-      ) : (
-        <img src={dogMediaUrl} class="w-full h-64 object-cover"/>
-      )}
-    </figure>
-    <div class="card-body">
-      <h2 class="card-title">Dog Fact #{randomNumber}</h2>
-      <p>{dogFact}</p>
-      <div class="card-actions justify-end">
-        <button class="btn btn-primary" onclick="window.location.reload()">Show me another</button>
+    <div class="card card-compact bg-base-100 w-96 shadow-xl">
+      <figure id="dogPic">
+        <div class="w-full h-64 flex items-center justify-center">
+          <span></span>
+        </div>
+      </figure>
+      <div class="card-body">
+        <h2 class="card-title" id="factTitle"></h2>
+        <p id="dogFact"></p>
+        <div class="card-actions justify-end">
+          <button class="btn btn-primary" id="reload">Show me another</button>
+        </div>
       </div>
     </div>
+  
+    <script>
+      function loadContent() {
+        //this api will give us a random dog fact
+        fetch('https://dog-api.kinduff.com/api/facts')
+          .then(response => response.json())
+          .then(factData => {
+            const dogFact = factData.facts[0];
+            //this api will give us a random dog image
+            return fetch('https://random.dog/woof.json')
+              .then(response => response.json())
+              .then(imageData => {
+                const dogVidURL = imageData.url;
+  
+                // the random dog API returns a video sometimes. I think it's only mp4 or webm
+                const videos = ['.mp4', '.webm'];
+                const isVideo = videos.some(ext => dogVidURL.endsWith(ext));
+  
+                // Generate a random number between 100 and 9999 for gigs n shits
+                const randomNumber = Math.floor(Math.random() * (9999 - 100 + 1)) + 100;
+  
+                document.getElementById('factTitle').textContent = `Dog Fact #${randomNumber}`;
+                document.getElementById('dogFact').textContent = dogFact;
+  
+                const mediaContainer = document.getElementById('dogPic');
+                const imgtemplate = `<img class="w-full h-64 object-cover" src="${dogVidURL}" />`;
+                const vidtemplate = `<video class="w-full h-64 object-cover" src="${dogVidURL}" autoplay loop />`;
+  
+                if (isVideo) {
+                  mediaContainer.innerHTML = vidtemplate;
+                } else {
+                  mediaContainer.innerHTML = imgtemplate;
+                }
+              });
+          });
+      }
+  
+      loadContent();
+      document.getElementById('reload').addEventListener('click', loadContent);
+    </script>
   </div>
-</div>
+  
